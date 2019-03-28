@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+          integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
+          crossorigin="anonymous">
+    <title>My Todolist</title>
+    <style>
+        input::placeholder {
+        color: red;
+
+        }
+
+    </style>
+</head>
+<body>
+<div>
+<h1>Hey</h1>
+<div class="row border">
+    <div class="col-4 offset-4 border">
+        <div class="card" style="width: 100%;">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                  <form class="form-inline" action="/todo/add/" method="POST" id="addtask">
+                      {% csrf_token %}
+                      <input class="form-control" style="width:85%" type="text" placeholder="Add a task" name="disc">
+                      <button class="btn btn-success " type="submit"><i class="fas fa-plus"></i></button>
+                  </form>
+              </li>
+              {% for object in object_list %}
+
+              <li class="list-group-item">
+                  {% if object.is_completed %}
+                  <input type="checkbox" value="{{ object.id }}" class="chk" checked>
+                  <p class="decr" style="text-decoration:line-through">
+                      {{ object.description }}
+                  </p>
+                  <form class="form-inline">
+                      <input class="form-control" type="text" placeholder="{{ object.description }}" name="" disabled>
+                  </form>
+                  {% else %}
+                  <input type="checkbox" value="{{ object.id }}" class="chk">
+                  <p class="decr">
+                      {{ object.description }}
+                  </p>
+                  <form class="form-inline">
+                      <input class="form-control" type="text" placeholder="{{ object.description }}" name="" >
+                  </form>
+                  {% endif %}
+              </li>
+              {% endfor %}
+              <li class="list-group-item">
+                  <span class="float-left border">
+                      Some tasks are completed
+                  </span>
+                  <span class="float-right">
+                      <a role="button" class="btn btn-success" href="/todo/remove_completed">
+                          Remove
+                      </a>
+                  </span>
+              </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script>
+    $(document).ready(function(){
+    // remove completed task
+    //var remove =  $("#remove");
+    //remove.click(function(){
+    //console.log(" remove button clicked ");
+    //});
+
+
+    // checkbox related
+    var checkboxes =  $(".chk");
+    checkboxes.change(function(){
+    var checkbox = $(this);
+    if ($(this).prop("checked")== true){
+    checkbox.parent().find(".decr").css( "text-decoration", "line-through" );
+    var todoid = checkbox.parent().find(".todoid").text();
+    console.log("Checked");
+    console.log(checkbox.val());
+    $.ajax({
+            url: "/todo/make_complete/",
+            method: "GET",
+            data: {
+            "id" : checkbox.val(),
+            },
+            success: function(data){
+                console.log(data.msg);
+                // Below code is for reloading only body html and its very simple
+                // I am skipping this to follow the tutorial
+                //$("#bd").load(window.location.href);
+            },
+            error: function(errorData){
+
+            },
+    });
+    }
+    else {
+    checkbox.parent().find(".decr").css( "text-decoration", "none" );
+    $.ajax({
+            url: "/todo/make_uncomplete/",
+            method: "GET",
+            data: {
+            "id" : checkbox.val(),
+            },
+            success: function(data){
+                console.log(data.msg);
+                // Below code is for reloading only body html and its very simple
+                // I am skipping this to follow the tutorial
+                //$("#bd").load(window.location.href);
+            },
+            error: function(errorData){
+
+            },
+    });
+    console.log("Unchecked");
+    };
+
+    });
+    console.log("Hey");
+    });
+</script>
+</body>
+</html>
